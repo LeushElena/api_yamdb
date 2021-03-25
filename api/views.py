@@ -2,9 +2,9 @@ from rest_framework import viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 
-from api.models import Title, Review
-from api.serializers import ReviewSerializer, CommentSerializer
+from api.models import Review, Title
 from api.permissions import IsAuthorOrReadOnly
+from api.serializers import CommentSerializer, ReviewSerializer
 
 PERMISSION_CLASSES = [IsAuthenticated, IsAuthorOrReadOnly]
 
@@ -37,7 +37,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         review = get_object_or_404(Review, id=review_id)
         comments = review.comments.all()
         return comments
-    
+
     def perform_create(self, serializer):
         params = {
             'author': self.request.user,

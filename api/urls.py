@@ -2,7 +2,7 @@ from django.conf.urls import include
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 
-from api.views import ReviewViewSet, CommentViewSet
+from api.views import CommentViewSet, ReviewViewSet
 
 v1_router = DefaultRouter()
 v1_router.register(
