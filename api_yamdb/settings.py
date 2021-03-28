@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
-
+from datetime import timedelta
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -31,6 +31,8 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'rest_framework',
+    'django_filters',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -130,10 +132,16 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
-            'api.backends.JWTAuthentication',
+            'rest_framework_simplejwt.authentication.JWTAuthentication',
         ],
-    }
+    'PAGE_SIZE': 100,
+}
 
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
+
+JWT_AUTH = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=5),
+    'JWT_EXPIRATION_DELTA': timedelta(days=2),
+}
