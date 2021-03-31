@@ -131,13 +131,12 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
         'PAGE_SIZE': 100
-
 }
 
 SIMLE_JWT = {
+
     'ACCESS_TOKEN_LIFETIME': timedelta(days=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=2),
-
 }
 
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"

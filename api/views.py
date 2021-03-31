@@ -1,18 +1,21 @@
-from rest_framework import status, permissions, viewsets, mixins
-from rest_framework.permissions import AllowAny
+from django.db.models.aggregates import Avg
+from rest_framework import mixins, permissions, status, viewsets
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view, permission_classes
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .pagination import CursorPagination
 from .filters import TitleFilter
-from .models import CustomUser, Category, Genre, Title
-from .permissions import IsAdmin, IsAdminOrReadOnly
-from .serializers import( 
-    RegistrationSerializer, LoginSerializer, UserSerializer,
-    CategorySerializer, GenreSerializer, TitleSerializer
-)
+from .models import Category, CustomUser, Genre, Review, Title
+from .pagination import CursorPagination
+from .permissions import IsAdmin, IsAdminOrReadOnly, IsAuthorOrStaffOrReadOnly
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, LoginSerializer,
+                          RegistrationSerializer, ReviewSerializer,
+                          TitleRatingSerialier, TitleSerializer,
+                          UserSerializer)
 
 
 class RegistrationAPIView(APIView):
@@ -22,7 +25,6 @@ class RegistrationAPIView(APIView):
         serializer = RegistrationSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-
             return Response(serializer.data,
                 status=status.HTTP_201_CREATED,
             )
@@ -94,8 +96,53 @@ class GenreViewSet(ListCreateDestroyViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
-    serializer_class = TitleSerializer
+    queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
     permission_classes = (IsAdminOrReadOnly,)
-    filterset_class = TitleFilter       
+    filterset_class = TitleFilter
     pagination_class = CursorPagination
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return TitleRatingSerialier
+        else:
+            return TitleSerializer
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrStaffOrReadOnly]
+    pagination_class = CursorPagination
+
+    def get_queryset(self):
+        title_id = self.kwargs.get('title_id')
+        title = get_object_or_404(Title, id=title_id)
+        reviews = title.reviews.all()
+        return reviews
+
+    def perform_create(self, serializer):
+        params = {
+            'author': self.request.user,
+            'title_id': self.kwargs.get('title_id')
+        }
+        get_object_or_404(Title, id=params['title_id'])
+        serializer.save(**params)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrStaffOrReadOnly]
+    pagination_class = CursorPagination
+
+    def get_queryset(self):
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, id=review_id)
+        comments = review.comments.all()
+        return comments
+
+    def perform_create(self, serializer):
+        params = {
+            'author': self.request.user,
+            'review_id': self.kwargs.get('review_id')
+        }
+        get_object_or_404(Review, id=params['review_id'])
+        serializer.save(**params)

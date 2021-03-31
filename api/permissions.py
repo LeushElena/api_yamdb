@@ -1,5 +1,6 @@
 from rest_framework import permissions
 from rest_framework.response import Response
+
 from .models import CustomUser
 
 class IsAdmin(permissions.BasePermission):
@@ -42,3 +43,15 @@ class IsAuthorOrModeratorOrReadOnly(permissions.BasePermission):
         return (request.method in MODERATOR_METHODS
                 and request.user.role == CustomUser.ROLE_MODERATOR
                 or obj.author == request.user)
+
+      
+class IsAuthorOrStaffOrReadOnly(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return (
+            request.method in permissions.SAFE_METHODS
+            or request.user == obj.author
+            or request.user.role in [
+                CustomUser.ROLE_MODERATOR,
+                CustomUser.ROLE_ADMIN
+            ]
+        )
