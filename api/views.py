@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
-from .pagination import CursorPagination 
+from .pagination import CursorPagination
 from .filters import TitleFilter
 from .models import CustomUser, Category, Genre, Title
 from .permissions import IsAdmin, IsAdminOrReadOnly
@@ -100,4 +100,3 @@ class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     filterset_class = TitleFilter       
     pagination_class = CursorPagination
-

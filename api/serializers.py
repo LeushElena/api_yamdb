@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import CustomUser, Category, Genre, Title
 from django.contrib.auth.tokens import default_token_generator
-from rest_framework.generics import get_object_or_404
 from django.core.mail import send_mail
 
 
@@ -82,6 +81,4 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Title
         fields = '__all__'
-        
-
 
