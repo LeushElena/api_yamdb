@@ -1,4 +1,5 @@
 from django.db.models.aggregates import Avg
+
 from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import get_object_or_404
@@ -11,11 +12,13 @@ from .filters import TitleFilter
 from .models import Category, CustomUser, Genre, Review, Title
 from .pagination import CursorPagination
 from .permissions import IsAdmin, IsAdminOrReadOnly, IsAuthorOrStaffOrReadOnly
-from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, LoginSerializer,
-                          RegistrationSerializer, ReviewSerializer,
-                          TitleRatingSerialier, TitleSerializer,
-                          UserSerializer)
+from .serializers import (
+    CategorySerializer, CommentSerializer,
+    GenreSerializer, LoginSerializer,
+    RegistrationSerializer, ReviewSerializer,
+    TitleRatingSerialier, TitleSerializer,
+    UserSerializer
+)
 
 
 class RegistrationAPIView(APIView):
@@ -26,9 +29,10 @@ class RegistrationAPIView(APIView):
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data,
-                status=status.HTTP_201_CREATED,
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                            status=status.HTTP_201_CREATED,)
+        return Response(serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -44,7 +48,8 @@ def AuthTokenJwt(request):
         refresh = RefreshToken.for_user(user)
         token = str(refresh.access_token)
         return Response({'token': token})
-    return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.data,
+                    status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -66,7 +71,7 @@ class UserMeViewSet(APIView):
         serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK) 
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_403_FORBIDDEN)
 
 

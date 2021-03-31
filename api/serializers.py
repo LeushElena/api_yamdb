@@ -1,5 +1,6 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+
 from rest_framework import serializers
 
 from .models import Category, Comment, CustomUser, Genre, Review, Title
@@ -13,7 +14,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = CustomUser(email=validated_data['email'])
         confirmation_code = default_token_generator.make_token(user)
-        user = CustomUser(email=validated_data['email'], confirmation_code=confirmation_code)
+        user = CustomUser(
+            email=validated_data['email'],
+            confirmation_code=confirmation_code
+        )
         user.save()
         send_mail(
             'Confirmation_code',
@@ -32,18 +36,16 @@ class LoginSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ('first_name', 'last_name', 'username', 'bio', 'email', 'role',)
+        fields = (
+            'first_name', 'last_name', 'username',
+            'bio', 'email', 'role',
+        )
 
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         exclude = ['id', ]
-
-
-class GenreSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Genre
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -88,7 +90,7 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Title
         fields = '__all__'
-        
+
 
 class TitleRatingSerialier(serializers.ModelSerializer):
     genre = GenreField(
@@ -103,8 +105,8 @@ class TitleRatingSerialier(serializers.ModelSerializer):
     rating = serializers.FloatField()
 
     class Meta:
-        fields = '__all__'
         model = Title
+        fields = '__all__'
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -114,9 +116,9 @@ class ReviewSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
+        model = Review
         fields = ('id', 'text', 'author', 'score', 'pub_date',)
         read_only = ['id', 'author', 'pub_date']
-        model = Review
 
     def validate(self, data):
         user = self.context['request'].user
@@ -135,6 +137,6 @@ class CommentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
+        model = Comment
         fields = ('id', 'text', 'author', 'pub_date',)
         read_only = ['id', 'author', 'pub_date']
-        model = Comment
