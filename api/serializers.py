@@ -44,6 +44,11 @@ class CategorySerializer(serializers.ModelSerializer):
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
         exclude = ['id', ]
 
 
@@ -81,9 +86,9 @@ class TitleSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = '__all__'
         model = Title
-
+        fields = '__all__'
+        
 
 class TitleRatingSerialier(serializers.ModelSerializer):
     genre = GenreField(

@@ -3,7 +3,6 @@ from rest_framework.response import Response
 
 from .models import CustomUser
 
-
 class IsAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
         return (request.user.is_authenticated and 
@@ -45,7 +44,7 @@ class IsAuthorOrModeratorOrReadOnly(permissions.BasePermission):
                 and request.user.role == CustomUser.ROLE_MODERATOR
                 or obj.author == request.user)
 
-
+      
 class IsAuthorOrStaffOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return (

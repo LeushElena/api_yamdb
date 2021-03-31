@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.core import validators
 from django.db import models
+from django.contrib.auth.models import AbstractUser
+from django.core import validators
 
 
 class CustomUser(AbstractUser):
@@ -13,7 +15,7 @@ class CustomUser(AbstractUser):
         (ROLE_ADMIN, 'Админ'),
     )
     bio = models.TextField(blank=True, null=True, max_length=200)
-    role = models.CharField(
+    role =  models.CharField(
         verbose_name='Роль пользователя',
         max_length=10,
         choices=USERS_ROLE,
