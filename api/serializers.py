@@ -103,8 +103,8 @@ class TitleRatingSerialier(serializers.ModelSerializer):
     rating = serializers.FloatField()
 
     class Meta:
-        fields = '__all__'
         model = Title
+        fields = '__all__'
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -114,9 +114,9 @@ class ReviewSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
+        model = Review
         fields = ('id', 'text', 'author', 'score', 'pub_date',)
         read_only = ['id', 'author', 'pub_date']
-        model = Review
 
     def validate(self, data):
         user = self.context['request'].user
@@ -135,6 +135,6 @@ class CommentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
+        model = Comment
         fields = ('id', 'text', 'author', 'pub_date',)
         read_only = ['id', 'author', 'pub_date']
-        model = Comment
