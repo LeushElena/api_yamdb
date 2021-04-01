@@ -85,12 +85,13 @@ class Review(models.Model):
         CustomUser, on_delete=models.CASCADE, related_name='reviews'
     )
     text = models.TextField()
-    score = models.PositiveSmallIntegerField(
-        choices=[(i, i) for i in range(11)]
-    )
+    score = models.PositiveSmallIntegerField()
     pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True
     )
+
+    class Meta:
+        ordering = ('-pub_date',)
 
 
 class Comment(models.Model):
@@ -104,3 +105,6 @@ class Comment(models.Model):
     pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True
     )
+
+    class Meta:
+        ordering = ('-pub_date',)
