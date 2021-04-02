@@ -138,6 +138,8 @@ SIMLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=2),
 }
 
+DEFAULT_FROM_EMAIL = 'admin@yambdb.com'
+
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
