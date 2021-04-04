@@ -1,7 +1,6 @@
 from django.db.models.aggregates import Avg
-
 from rest_framework import mixins, permissions, status, viewsets
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
@@ -12,13 +11,11 @@ from .filters import TitleFilter
 from .models import Category, CustomUser, Genre, Review, Title
 from .pagination import CursorPagination
 from .permissions import IsAdmin, IsAdminOrReadOnly, IsAuthorOrStaffOrReadOnly
-from .serializers import (
-    CategorySerializer, CommentSerializer,
-    GenreSerializer, LoginSerializer,
-    RegistrationSerializer, ReviewSerializer,
-    TitleRatingSerialier, TitleSerializer,
-    UserSerializer
-)
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, LoginSerializer,
+                          RegistrationSerializer, ReviewSerializer,
+                          TitleRatingSerialier, TitleSerializer,
+                          UserSerializer)
 
 
 class RegistrationAPIView(APIView):
@@ -26,30 +23,27 @@ class RegistrationAPIView(APIView):
 
     def post(self, request):
         serializer = RegistrationSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data,
-                            status=status.HTTP_201_CREATED,)
-        return Response(serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data,
+                        status=status.HTTP_201_CREATED,)
 
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def AuthTokenJwt(request):
     serializer = LoginSerializer(data=request.data)
-    if serializer.is_valid():
-        email = serializer.validated_data['email']
-        confirmation_code = serializer.validated_data['confirmation_code']
-        user = CustomUser.objects.get(
-            email=email,
-            confirmation_code=confirmation_code,
-        )
-        refresh = RefreshToken.for_user(user)
-        token = str(refresh.access_token)
-        return Response({'token': token})
-    return Response(serializer.data,
-                    status=status.HTTP_400_BAD_REQUEST)
+    serializer.is_valid(raise_exception=True)
+    email = serializer.validated_data['email']
+    confirmation_code = serializer.validated_data['confirmation_code']
+    user = get_object_or_404(
+        CustomUser,
+        email=email,
+        confirmation_code=confirmation_code,
+    )
+    refresh = RefreshToken.for_user(user)
+    token = str(refresh.access_token)
+    return Response({'token': token})
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -59,20 +53,17 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated, IsAdmin,)
     pagination_class = CursorPagination
 
-
-class UserMeViewSet(APIView):
-    def get(self, request):
-        user = CustomUser.objects.get(pk=self.request.user.pk)
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
-
-    def patch(self, request):
+    @action(
+        detail=False,
+        methods=['get', 'patch'],
+        permission_classes=(permissions.IsAuthenticated,)
+    )
+    def me(self, request):
         user = CustomUser.objects.get(pk=self.request.user.pk)
         serializer = UserSerializer(user, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_403_FORBIDDEN)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ListCreateDestroyViewSet(mixins.ListModelMixin,

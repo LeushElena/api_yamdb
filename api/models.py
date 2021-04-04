@@ -26,13 +26,6 @@ class CustomUser(AbstractUser):
     email = models.EmailField(
         validators=[validators.validate_email],
         unique=True,
-        blank=False
-    )
-    username = models.CharField(
-        null=True,
-        blank=True,
-        max_length=150,
-        unique=True
     )
     confirmation_code = models.CharField(
         null=True,
@@ -45,6 +38,14 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.email
+
+    @property
+    def is_admin(self):
+        return self.role == self.ROLE_ADMIN
+
+    @property
+    def is_moderator(self):
+        return self.role == self.ROLE_MODERATOR
 
 
 class Category(models.Model):

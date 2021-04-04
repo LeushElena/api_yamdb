@@ -1,7 +1,8 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
-
 from rest_framework import serializers
+
+from api_yamdb.settings import DEFAULT_FROM_EMAIL
 
 from .models import Category, Comment, CustomUser, Genre, Review, Title
 
@@ -14,15 +15,11 @@ class RegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = CustomUser(email=validated_data['email'])
         confirmation_code = default_token_generator.make_token(user)
-        user = CustomUser(
-            email=validated_data['email'],
-            confirmation_code=confirmation_code
-        )
         user.save()
         send_mail(
             'Confirmation_code',
             confirmation_code,
-            'admin@yambdb.com',
+            DEFAULT_FROM_EMAIL,
             [validated_data['email']],
         )
         return user
