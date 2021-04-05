@@ -6,6 +6,7 @@ from rest_framework import serializers
 
 from api_yamdb.settings import DEFAULT_FROM_EMAIL
 
+from .fields import CategoryField, GenreField
 from .models import Category, Comment, CustomUser, Genre, Review, Title
 
 
@@ -51,28 +52,6 @@ class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
         exclude = ['id', ]
-
-
-class GenreField(serializers.SlugRelatedField):
-    def to_internal_value(self, data):
-        try:
-            return self.get_queryset().get(**{self.slug_field: data})
-        except (TypeError, ValueError):
-            self.fail('invalid')
-
-    def to_representation(self, value):
-        return GenreSerializer(value).data
-
-
-class CategoryField(serializers.SlugRelatedField):
-    def to_internal_value(self, data):
-        try:
-            return self.get_queryset().get(**{self.slug_field: data})
-        except (TypeError, ValueError):
-            self.fail('invalid')
-
-    def to_representation(self, value):
-        return CategorySerializer(value).data
 
 
 class TitleSerializer(serializers.ModelSerializer):
