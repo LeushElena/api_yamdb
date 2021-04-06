@@ -31,7 +31,7 @@ class RegistrationAPIView(APIView):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def AuthTokenJwt(request):
+def get_auth_token(request):
     serializer = LoginSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     email = serializer.validated_data['email']
@@ -59,8 +59,9 @@ class UserViewSet(viewsets.ModelViewSet):
         permission_classes=(permissions.IsAuthenticated,)
     )
     def me(self, request):
-        user = CustomUser.objects.get(pk=self.request.user.pk)
-        serializer = UserSerializer(user, data=request.data, partial=True)
+        serializer = UserSerializer(
+            self.request.user,
+            data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
